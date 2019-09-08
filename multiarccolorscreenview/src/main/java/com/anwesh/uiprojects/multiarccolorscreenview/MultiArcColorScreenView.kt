@@ -187,4 +187,26 @@ class MultiArcColorScreenView(ctx : Context) : View(ctx) {
             curr.startUpdating(cb)
         }
     }
+
+    data class Renderer(var view : MultiArcColorScreenView) {
+
+        private val animator : Animator = Animator(view)
+        private val macs : MultiArcColorScreen = MultiArcColorScreen(0)
+
+        fun render(canvas : Canvas, paint : Paint) {
+            canvas.drawColor(backColor)
+            macs.draw(canvas, paint)
+            animator.animate {
+                macs.update {
+                    animator.stop()
+                }
+            }
+        }
+
+        fun handleTap() {
+            macs.startUpdating {
+                animator.start()
+            }
+        }
+    }
 }
