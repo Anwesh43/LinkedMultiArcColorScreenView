@@ -23,34 +23,37 @@ fun Int.inverse() : Float = 1f / this
 fun Float.maxScale(i : Int, n : Int) : Float = Math.max(0f, this - i * n.inverse())
 fun Float.divideScale(i : Int, n : Int) : Float = Math.min(n.inverse(), maxScale(i, n)) * n
 
-fun Canvas.drawArcColorScreen(i : Int, sc1 : Float, sc2 : Float, size : Float, paint : Paint) {
+fun Canvas.drawArcColorScreen(i : Int, sc1 : Float, sc2 : Float, size : Float, shouldFill : Boolean, paint : Paint) {
     val sc1i : Float = sc1.divideScale(i, circles)
     val sc2i : Float = sc2.divideScale(i, circles)
-    var sweepDeg : Float = 360f * (1 - sc1.divideScale(i, circles))
-    if (sc2 > 0f) {
-        sweepDeg = 360f * sc2
+    var sweepDeg : Float = 0f
+    if (sc2i > 0f) {
+        sweepDeg = 360f * sc2i
+    }
+    if (shouldFill) {
+        sweepDeg = 360f * (1 - sc1i)
     }
     save()
     translate(i * 2 * size + size, 0f)
-    paint.color = Color.parseColor(colors[i])
     drawArc(RectF(-size, -size, size, size), 360f * sc1i, sweepDeg, true, paint)
     restore()
 }
 
-fun Canvas.drawMultiArcColorScreen(sc1 : Float, sc2 : Float, size : Float, paint : Paint) {
+fun Canvas.drawMultiArcColorScreen(sc1 : Float, sc2 : Float, size : Float, shouldFill: Boolean, paint : Paint) {
     for (j in 0..(circles - 1)) {
-        drawArcColorScreen(j, sc1, sc2, size, paint)
+        drawArcColorScreen(j, sc1, sc2, size, shouldFill, paint)
     }
 }
 
-fun Canvas.drawMACSNode(i : Int, scale : Float, sc : Float, paint : Paint) {
+fun Canvas.drawMACSNode(i : Int, scale : Float, sc : Float, currI : Int, paint : Paint) {
     val w : Float = width.toFloat()
     val h : Float = height.toFloat()
     val gap : Float = w / (colors.size)
     val size : Float = gap / 2
     save()
     translate(0f, h / 2)
-    drawMultiArcColorScreen(scale, sc, size, paint)
+    paint.color = Color.parseColor(colors[i])
+    drawMultiArcColorScreen(scale, sc, size, currI == i, paint)
     restore()
 }
 
@@ -136,10 +139,10 @@ class MultiArcColorScreenView(ctx : Context) : View(ctx) {
             }
         }
 
-        fun draw(canvas : Canvas, sc : Float, paint : Paint) {
-            canvas.drawMACSNode(i, state.scale, sc, paint)
+        fun draw(canvas : Canvas, sc : Float, currI: Int, paint : Paint) {
+            canvas.drawMACSNode(i, state.scale, sc, currI, paint)
             if (state.scale > 0f) {
-                next?.draw(canvas, state.scale, paint)
+                next?.draw(canvas, state.scale, currI, paint)
             }
         }
 
@@ -172,7 +175,7 @@ class MultiArcColorScreenView(ctx : Context) : View(ctx) {
         private var dir : Int = 1
 
         fun draw(canvas : Canvas, paint : Paint) {
-            root.draw(canvas, 0f, paint)
+            root.draw(canvas, 0f, curr.i, paint)
         }
 
         fun update(cb : (Float) -> Unit) {
