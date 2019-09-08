@@ -216,7 +216,7 @@ class MultiArcColorScreenView(ctx : Context) : View(ctx) {
         fun create(activity : Activity) : MultiArcColorScreenView {
             val view : MultiArcColorScreenView = MultiArcColorScreenView(activity)
             activity.setContentView(view)
-            return view 
+            return view
         }
     }
 }
