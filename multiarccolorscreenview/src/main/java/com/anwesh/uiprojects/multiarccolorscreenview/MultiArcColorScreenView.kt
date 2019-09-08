@@ -15,8 +15,8 @@ import android.graphics.Color
 
 val colors : Array<String> = arrayOf("#9C27B0", "#2196F3", "#DD2C00", "#00C853", "#f44336")
 val circles : Int = 5
-val scGap : Float = 0.01f
-val delay : Long = 30
+val scGap : Float = 0.01f / circles
+val delay : Long = 5
 val backColor : Int = Color.parseColor("#BDBDBD")
 
 fun Int.inverse() : Float = 1f / this
