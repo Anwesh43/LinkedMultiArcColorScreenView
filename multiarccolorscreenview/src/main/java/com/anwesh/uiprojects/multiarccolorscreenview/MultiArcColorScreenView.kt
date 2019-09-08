@@ -118,4 +118,49 @@ class MultiArcColorScreenView(ctx : Context) : View(ctx) {
             }
         }
     }
+
+    data class MACSNode(var i : Int, val state : State = State()) {
+
+        private var next : MACSNode? = null
+        private var prev : MACSNode? = null
+
+        init {
+            addNeighbor()
+        }
+
+        fun addNeighbor() {
+            if (i < colors.size - 1) {
+                next = MACSNode(i + 1)
+                next?.prev = this
+            }
+        }
+
+        fun draw(canvas : Canvas, sc : Float, paint : Paint) {
+            canvas.drawMACSNode(i, state.scale, sc, paint)
+            if (state.scale > 0f) {
+                next?.draw(canvas, state.scale, paint)
+            }
+        }
+
+        fun update(cb : (Float) -> Unit) {
+            state.update(cb)
+        }
+
+        fun startUpdating(cb : () -> Unit) {
+            state.startUpdating(cb)
+        }
+
+        fun getNext(dir : Int, cb : () -> Unit) : MACSNode {
+            var curr : MACSNode? = prev
+            if (dir == 1) {
+                curr = next
+            }
+            if (curr != null) {
+                return curr
+            }
+            cb()
+            return this 
+        }
+
+    }
 }
